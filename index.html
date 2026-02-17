@@ -1,0 +1,1659 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>⚡ POWER OTP WEB</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Space+Mono:wght@400;700&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-primary: #050a0f;
+    --bg-card: #0a1520;
+    --bg-card2: #0d1e2e;
+    --border: #1a3a55;
+    --accent: #00d4ff;
+    --accent2: #00ff88;
+    --accent3: #ff6b35;
+    --accent-glow: rgba(0,212,255,0.25);
+    --text-primary: #e0f4ff;
+    --text-secondary: #7ab8d4;
+    --text-muted: #3a6b88;
+    --otp-bg: #0a1f2e;
+    --otp-border: #00d4ff;
+    --shadow-card: 0 4px 30px rgba(0,212,255,0.08);
+    --header-bg: rgba(5,10,15,0.97);
+  }
+  [data-theme="light"] {
+    --bg-primary: #f0f6ff;
+    --bg-card: #ffffff;
+    --bg-card2: #f8faff;
+    --border: #c5d8ee;
+    --accent: #0066cc;
+    --accent2: #00aa55;
+    --accent3: #ff4400;
+    --accent-glow: rgba(0,102,204,0.15);
+    --text-primary: #0a1a2e;
+    --text-secondary: #3366aa;
+    --text-muted: #7a99bb;
+    --otp-bg: #e8f4ff;
+    --otp-border: #0066cc;
+    --shadow-card: 0 4px 30px rgba(0,102,204,0.12);
+    --header-bg: rgba(240,246,255,0.97);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: 'Rajdhani', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    transition: background 0.3s, color 0.3s;
+  }
+
+  /* ─── BACKGROUND GRID ─── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+  [data-theme="light"] body::before {
+    background-image:
+      linear-gradient(rgba(0,100,200,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,100,200,0.04) 1px, transparent 1px);
+  }
+
+  /* ─── HEADER ─── */
+  .header {
+    position: sticky; top: 0; z-index: 100;
+    background: var(--header-bg);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 16px;
+    height: 60px;
+    display: flex; align-items: center; justify-content: space-between;
+    box-shadow: 0 2px 20px rgba(0,0,0,0.4);
+  }
+  .logo {
+    display: flex; align-items: center; gap: 10px;
+  }
+  .logo-icon {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    box-shadow: 0 0 15px var(--accent-glow);
+    flex-shrink: 0;
+  }
+  .logo-text {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 900;
+    font-size: 15px;
+    letter-spacing: 1px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.2;
+  }
+  .logo-sub {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    color: var(--text-muted);
+    letter-spacing: 2px;
+    -webkit-text-fill-color: var(--text-muted);
+  }
+
+  .header-actions {
+    display: flex; align-items: center; gap: 8px;
+  }
+  .btn-icon {
+    width: 38px; height: 38px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    color: var(--text-primary);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.2s;
+    position: relative;
+  }
+  .btn-icon:hover {
+    border-color: var(--accent);
+    background: var(--otp-bg);
+    box-shadow: 0 0 10px var(--accent-glow);
+  }
+  .btn-admin {
+    height: 38px;
+    padding: 0 14px;
+    border-radius: 10px;
+    border: 1px solid var(--accent3);
+    background: rgba(255,107,53,0.1);
+    color: var(--accent3);
+    font-family: 'Orbitron', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-admin:hover {
+    background: rgba(255,107,53,0.25);
+    box-shadow: 0 0 15px rgba(255,107,53,0.3);
+  }
+
+  /* ─── STATUS BAR ─── */
+  .status-bar {
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border);
+    padding: 8px 16px;
+    display: flex; align-items: center; gap: 16px;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--text-secondary);
+    overflow-x: auto;
+    white-space: nowrap;
+    position: relative; z-index: 1;
+  }
+  .status-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--accent2);
+    flex-shrink: 0;
+    animation: pulse 2s infinite;
+  }
+  .status-dot.off {
+    background: #ff4444;
+    animation: none;
+  }
+  @keyframes pulse {
+    0%,100% { box-shadow: 0 0 0 0 rgba(0,255,136,0.7); }
+    50% { box-shadow: 0 0 0 6px rgba(0,255,136,0); }
+  }
+  .status-sep { color: var(--border); }
+  .status-count {
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  /* ─── MAIN LAYOUT ─── */
+  .main { position: relative; z-index: 1; padding: 12px; max-width: 600px; margin: 0 auto; }
+
+  /* ─── OTP CARDS ─── */
+  .otp-feed { display: flex; flex-direction: column; gap: 10px; }
+
+  .otp-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: var(--shadow-card);
+    animation: slideIn 0.4s ease-out;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .otp-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 40px rgba(0,212,255,0.15);
+  }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(-20px) scale(0.97); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .otp-card.new-flash {
+    border-color: var(--accent2);
+    box-shadow: 0 0 20px rgba(0,255,136,0.3);
+  }
+
+  .card-header {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px;
+    background: var(--bg-card2);
+    border-bottom: 1px solid var(--border);
+  }
+  .card-flag {
+    font-size: 20px; flex-shrink: 0; line-height: 1;
+  }
+  .card-title-group { flex: 1; min-width: 0; }
+  .card-service {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 0.5px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .card-country {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    color: var(--text-muted);
+  }
+  .card-time {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    color: var(--text-muted);
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  .card-body { padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; }
+
+  .card-row {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px;
+  }
+  .card-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    color: var(--text-muted);
+    width: 54px;
+    flex-shrink: 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .card-value {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: var(--text-secondary);
+    flex: 1; min-width: 0;
+    word-break: break-all;
+  }
+  .card-value.phone {
+    color: var(--text-primary);
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  /* OTP BOX */
+  .otp-box {
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--otp-bg);
+    border: 1px solid var(--otp-border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-top: 4px;
+    box-shadow: 0 0 15px var(--accent-glow);
+  }
+  .otp-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    color: var(--text-muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .otp-code {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 22px;
+    font-weight: 900;
+    letter-spacing: 6px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: none;
+  }
+  .otp-copy {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 14px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+  .otp-copy:hover { border-color: var(--accent); color: var(--accent); }
+  .otp-copy.copied { border-color: var(--accent2); color: var(--accent2); }
+
+  .card-message {
+    background: var(--bg-card2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    word-break: break-word;
+    max-height: 70px;
+    overflow-y: auto;
+  }
+  .card-message::-webkit-scrollbar { width: 4px; }
+  .card-message::-webkit-scrollbar-track { background: transparent; }
+  .card-message::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  /* BRANDING */
+  .card-footer {
+    padding: 8px 14px;
+    border-top: 1px solid var(--border);
+    display: flex; justify-content: center;
+  }
+  .card-brand {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* ─── EMPTY STATE ─── */
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    display: flex; flex-direction: column; align-items: center; gap: 16px;
+  }
+  .empty-icon {
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 36px;
+    background: var(--bg-card);
+    animation: spin 8s linear infinite;
+  }
+  @keyframes spin {
+    0% { box-shadow: 0 0 15px var(--accent-glow); border-color: var(--accent); }
+    50% { box-shadow: 0 0 25px var(--accent-glow); }
+    100% { box-shadow: 0 0 15px var(--accent-glow); border-color: var(--accent); }
+  }
+  .empty-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 13px;
+    letter-spacing: 2px;
+    color: var(--text-secondary);
+  }
+  .empty-sub {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--text-muted);
+  }
+
+  /* ─── ADMIN PANEL OVERLAY ─── */
+  .overlay {
+    position: fixed; inset: 0; z-index: 200;
+    background: rgba(0,0,0,0.85);
+    backdrop-filter: blur(8px);
+    display: none;
+    align-items: flex-end;
+    justify-content: center;
+    padding: 0;
+  }
+  .overlay.active { display: flex; }
+  .admin-sheet {
+    background: var(--bg-card);
+    border-top: 1px solid var(--border);
+    border-radius: 24px 24px 0 0;
+    width: 100%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 0 0 30px 0;
+    animation: sheetUp 0.35s cubic-bezier(0.16,1,0.3,1);
+    box-shadow: 0 -20px 60px rgba(0,0,0,0.6);
+  }
+  @keyframes sheetUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+  .admin-sheet::-webkit-scrollbar { width: 4px; }
+  .admin-sheet::-webkit-scrollbar-thumb { background: var(--border); }
+
+  .sheet-handle {
+    width: 40px; height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    margin: 12px auto 0;
+  }
+  .sheet-title {
+    padding: 16px 20px 12px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .sheet-title h2 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 14px;
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--accent3), #ff9f6b);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .btn-close {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer; font-size: 16px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+  .btn-close:hover { border-color: var(--accent3); color: var(--accent3); }
+
+  /* ADMIN SECTIONS */
+  .admin-section { padding: 16px 20px; border-bottom: 1px solid var(--border); }
+  .admin-section:last-child { border-bottom: none; }
+  .admin-section h3 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+    text-transform: uppercase;
+  }
+
+  /* OTP Toggle */
+  .toggle-row {
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--bg-card2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+  }
+  .toggle-info {}
+  .toggle-title {
+    font-size: 15px; font-weight: 600;
+    color: var(--text-primary);
+  }
+  .toggle-sub {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+  .toggle-switch {
+    width: 52px; height: 28px;
+    background: var(--border);
+    border-radius: 14px;
+    position: relative;
+    cursor: pointer;
+    transition: background 0.3s;
+    flex-shrink: 0;
+    border: none;
+  }
+  .toggle-switch.on { background: var(--accent2); }
+  .toggle-switch::after {
+    content: '';
+    position: absolute;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: white;
+    top: 3px; left: 3px;
+    transition: transform 0.3s;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+  }
+  .toggle-switch.on::after { transform: translateX(24px); }
+
+  /* API SECTION */
+  .api-form { display: flex; flex-direction: column; gap: 10px; }
+  .api-input-group { display: flex; flex-direction: column; gap: 5px; }
+  .api-input-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+  }
+  .api-input {
+    background: var(--bg-card2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    color: var(--text-primary);
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    width: 100%;
+    transition: border-color 0.2s;
+    outline: none;
+  }
+  .api-input:focus { border-color: var(--accent); }
+  .api-input::placeholder { color: var(--text-muted); }
+  .btn-save {
+    background: linear-gradient(135deg, var(--accent), #0095bb);
+    border: none;
+    border-radius: 10px;
+    padding: 12px;
+    color: #000;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 4px;
+  }
+  .btn-save:hover { transform: translateY(-1px); box-shadow: 0 5px 20px var(--accent-glow); }
+  .btn-save:active { transform: translateY(0); }
+
+  /* STATS */
+  .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .stat-box {
+    background: var(--bg-card2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px;
+    text-align: center;
+  }
+  .stat-val {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .stat-key {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 2px;
+  }
+
+  /* INTERVAL SECTION */
+  .interval-row {
+    display: flex; align-items: center; gap: 10px;
+  }
+  .interval-input {
+    width: 80px;
+    background: var(--bg-card2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px;
+    color: var(--text-primary);
+    font-family: 'Orbitron', monospace;
+    font-size: 14px;
+    font-weight: 700;
+    text-align: center;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .interval-input:focus { border-color: var(--accent); }
+  .interval-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--text-secondary);
+  }
+
+  /* ─── TOAST ─── */
+  .toast {
+    position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+    background: var(--bg-card);
+    border: 1px solid var(--accent2);
+    border-radius: 12px;
+    padding: 10px 20px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--accent2);
+    z-index: 300;
+    box-shadow: 0 5px 25px rgba(0,255,136,0.2);
+    animation: toastIn 0.3s ease-out;
+    white-space: nowrap;
+  }
+  @keyframes toastIn {
+    from { opacity: 0; transform: translateX(-50%) translateY(10px); }
+    to { opacity: 1; transform: translateX(-50%) translateY(0); }
+  }
+
+  /* ─── NAV BAR (mobile bottom) ─── */
+  .nav-bar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--header-bg);
+    backdrop-filter: blur(20px);
+    border-top: 1px solid var(--border);
+    display: flex;
+    padding: 8px 0 env(safe-area-inset-bottom, 8px);
+    z-index: 50;
+  }
+  .nav-item {
+    flex: 1;
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    padding: 6px 0;
+    cursor: pointer;
+    border: none; background: none;
+    color: var(--text-muted);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    transition: color 0.2s;
+  }
+  .nav-item.active { color: var(--accent); }
+  .nav-item span:first-child { font-size: 20px; }
+
+  /* ─── LOADING SPINNER ─── */
+  .spinner {
+    width: 20px; height: 20px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: rot 0.8s linear infinite;
+    flex-shrink: 0;
+  }
+  @keyframes rot { to { transform: rotate(360deg); } }
+
+  /* ─── SCROLLBAR ─── */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  /* ─── BADGE ─── */
+  .badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    padding: 2px 7px;
+    border-radius: 20px;
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    background: rgba(0,212,255,0.15);
+    color: var(--accent);
+    border: 1px solid rgba(0,212,255,0.3);
+  }
+
+  /* padding for nav bar */
+  .main-wrap { padding-bottom: 70px; }
+
+  /* notification bell badge */
+  .notif-badge {
+    position: absolute;
+    top: 6px; right: 6px;
+    width: 8px; height: 8px;
+    background: #ff4444;
+    border-radius: 50%;
+    border: 1.5px solid var(--bg-primary);
+  }
+
+  /* ─── LOGIN OVERLAY ─── */
+  .login-overlay {
+    position: fixed; inset: 0; z-index: 999;
+    background: var(--bg-primary);
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .login-box {
+    width: 100%; max-width: 380px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 32px 28px;
+    box-shadow: 0 20px 80px rgba(0,0,0,0.6), 0 0 40px rgba(0,212,255,0.08);
+    display: flex; flex-direction: column; align-items: center; gap: 22px;
+  }
+  .login-logo {
+    width: 70px; height: 70px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 18px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 34px;
+    box-shadow: 0 0 30px var(--accent-glow);
+  }
+  .login-title {
+    text-align: center;
+  }
+  .login-title h1 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 16px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .login-title p {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 3px;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+  .login-form { width: 100%; display: flex; flex-direction: column; gap: 12px; }
+  .login-input-wrap { position: relative; }
+  .login-input-icon {
+    position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+    font-size: 14px; color: var(--text-muted); pointer-events: none;
+  }
+  .login-input {
+    width: 100%;
+    background: var(--bg-card2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 13px 14px 13px 40px;
+    color: var(--text-primary);
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .login-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(0,212,255,0.12);
+  }
+  .login-input::placeholder { color: var(--text-muted); }
+  .login-btn {
+    width: 100%;
+    background: linear-gradient(135deg, var(--accent), #0095bb);
+    border: none;
+    border-radius: 12px;
+    padding: 14px;
+    color: #000;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 4px;
+  }
+  .login-btn:hover { transform: translateY(-1px); box-shadow: 0 8px 25px var(--accent-glow); }
+  .login-btn:active { transform: translateY(0); }
+  .login-error {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: #ff4444;
+    text-align: center;
+    padding: 8px 12px;
+    background: rgba(255,68,68,0.1);
+    border: 1px solid rgba(255,68,68,0.3);
+    border-radius: 8px;
+    display: none;
+  }
+  .login-error.show { display: block; }
+  .login-shake {
+    animation: shake 0.4s ease-out;
+  }
+  @keyframes shake {
+    0%,100%{transform:translateX(0)}
+    20%{transform:translateX(-8px)}
+    40%{transform:translateX(8px)}
+    60%{transform:translateX(-5px)}
+    80%{transform:translateX(5px)}
+  }
+</style>
+</head>
+<body>
+
+<!-- ─── HEADER ─── -->
+<header class="header">
+  <div class="logo">
+    <div class="logo-icon">⚡</div>
+    <div>
+      <div class="logo-text">POWER OTP WEB</div>
+      <div class="logo-sub">LIVE MONITORING</div>
+    </div>
+  </div>
+  <div class="header-actions">
+    <button class="btn-icon" id="themeBtn" title="Toggle Theme" onclick="toggleTheme()">🌙</button>
+    <button class="btn-icon" id="refreshBtn" title="Refresh" onclick="manualRefresh()">🔄</button>
+    <button class="btn-admin" onclick="openAdmin()">⚙ ADMIN</button>
+  </div>
+</header>
+
+<!-- ─── STATUS BAR ─── -->
+<div class="status-bar">
+  <div class="status-dot" id="statusDot"></div>
+  <span id="statusText">CONNECTING...</span>
+  <span class="status-sep">|</span>
+  <span>OTP: <span class="status-count" id="otpStatus">ON</span></span>
+  <span class="status-sep">|</span>
+  <span>TOTAL: <span class="status-count" id="totalCount">0</span></span>
+  <span class="status-sep">|</span>
+  <span>INTERVAL: <span class="status-count" id="intervalDisplay">15s</span></span>
+  <span class="status-sep">|</span>
+  <span>NEXT: <span class="status-count" id="nextFetch">--</span></span>
+  <span class="status-sep">|</span>
+  <span id="lastUpdate">WAITING...</span>
+</div>
+
+<!-- ─── MAIN ─── -->
+<div class="main-wrap">
+  <div class="main" id="mainContent">
+    <div class="otp-feed" id="otpFeed">
+      <div class="empty-state" id="emptyState">
+        <div class="empty-icon">⚡</div>
+        <div class="empty-title">WAITING FOR OTPs</div>
+        <div class="empty-sub">Connected to API • Fetching data...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── BOTTOM NAV ─── -->
+<nav class="nav-bar">
+  <button class="nav-item active" onclick="showFeed()">
+    <span>📡</span>
+    <span>LIVE FEED</span>
+  </button>
+  <button class="nav-item" onclick="showFeed()">
+    <span>📊</span>
+    <span>STATS</span>
+  </button>
+  <button class="nav-item" onclick="openAdmin()">
+    <span>⚙️</span>
+    <span>ADMIN</span>
+  </button>
+  <button class="nav-item" onclick="window.open('https://t.me/dp_numbers','_blank')">
+    <span>✈️</span>
+    <span>TG</span>
+  </button>
+</nav>
+
+<!-- ─── ADMIN PANEL OVERLAY ─── -->
+<div class="overlay" id="adminOverlay" onclick="handleOverlayClick(event)">
+  <div class="admin-sheet" id="adminSheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">
+      <h2>⚙ ADMIN PANEL</h2>
+      <button class="btn-close" onclick="closeAdmin()">✕</button>
+    </div>
+
+    <!-- ADMIN LOGIN SECTION (shown when not logged in) -->
+    <div id="adminLoginSection" style="display:flex; flex-direction:column; align-items:center; gap:18px; padding:30px 24px;">
+      <div style="width:56px;height:56px;background:linear-gradient(135deg,var(--accent3),#ff9f6b);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:26px;box-shadow:0 0 20px rgba(255,107,53,0.3);">🔐</div>
+      <div style="text-align:center;">
+        <div style="font-family:'Orbitron',sans-serif;font-size:13px;font-weight:900;color:var(--accent3);letter-spacing:1px;">ADMIN LOGIN</div>
+        <div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--text-muted);margin-top:4px;letter-spacing:2px;">ENTER CREDENTIALS TO CONTINUE</div>
+      </div>
+      <div style="width:100%;display:flex;flex-direction:column;gap:10px;">
+        <div class="login-input-wrap">
+          <span class="login-input-icon">👤</span>
+          <input type="text" class="login-input" id="adminLoginUser" placeholder="Username" autocomplete="off" spellcheck="false"/>
+        </div>
+        <div class="login-input-wrap">
+          <span class="login-input-icon">🔒</span>
+          <input type="password" class="login-input" id="adminLoginPass" placeholder="Password" autocomplete="off"/>
+        </div>
+        <div class="login-error" id="adminLoginError">⛔ Invalid username or password</div>
+        <button class="login-btn" onclick="doAdminLogin()">🔓 LOGIN TO ADMIN</button>
+      </div>
+    </div>
+
+    <!-- ADMIN CONTENT (shown after login) -->
+    <div id="adminContent" style="display:none;">
+
+    <!-- OTP TOGGLE -->
+    <div class="admin-section">
+      <h3>OTP Control</h3>
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="toggle-title">OTP Display</div>
+          <div class="toggle-sub" id="toggleSub">Currently: ENABLED • OTPs showing live</div>
+        </div>
+        <button class="toggle-switch on" id="otpToggle" onclick="toggleOtp()"></button>
+      </div>
+    </div>
+
+    <!-- API SETTINGS -->
+    <div class="admin-section">
+      <h3>API Configuration</h3>
+      <div class="api-form">
+        <div class="api-input-group">
+          <label class="api-input-label">API URL</label>
+          <input type="text" class="api-input" id="apiUrl" placeholder="http://example.com/api/endpoint" />
+        </div>
+        <div class="api-input-group">
+          <label class="api-input-label">API TOKEN</label>
+          <input type="text" class="api-input" id="apiToken" placeholder="Your API token here..." />
+        </div>
+        <div class="api-input-group">
+          <label class="api-input-label">CHECK INTERVAL (seconds)</label>
+          <div class="interval-row">
+            <input type="number" class="interval-input" id="intervalInput" value="10" min="5" max="300" />
+            <span class="interval-label">seconds between each fetch</span>
+          </div>
+        </div>
+        <button class="btn-save" onclick="saveApiSettings()">💾 SAVE &amp; APPLY</button>
+      </div>
+    </div>
+
+    <!-- STATS -->
+    <div class="admin-section">
+      <h3>Statistics</h3>
+      <div class="stats-grid">
+        <div class="stat-box">
+          <div class="stat-val" id="statTotal">0</div>
+          <div class="stat-key">TOTAL OTPs</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val" id="statSession">0</div>
+          <div class="stat-key">THIS SESSION</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val" id="statFetches">0</div>
+          <div class="stat-key">API FETCHES</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val" id="statErrors">0</div>
+          <div class="stat-key">ERRORS</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CLEAR DATA -->
+    <div class="admin-section">
+      <h3>Danger Zone</h3>
+      <button class="btn-save" style="background:linear-gradient(135deg,#ff4444,#cc2222); margin-bottom: 0;" onclick="clearFeed()">
+        🗑️ CLEAR ALL OTPs
+      </button>
+    </div>
+    </div><!-- /adminContent -->
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+//  CONFIGURATION
+// ─────────────────────────────────────────────
+let CONFIG = {
+  apiUrl: "http://147.135.212.197/crapi/st/viewstats",
+  apiToken: "R1BTQ0hBUzSAild8c2aWV3eYa1NpjVNIUpBzY1qCaWFHh5JUUpWIXQ==",
+  checkInterval: 10,
+  otpEnabled: true,
+  maxCards: 100
+};
+
+// ─────────────────────────────────────────────
+//  STATE
+// ─────────────────────────────────────────────
+let state = {
+  otps: [],
+  processed: new Set(),
+  totalCount: 0,
+  sessionCount: 0,
+  fetchCount: 0,
+  errorCount: 0,
+  isConnected: false,
+  intervalId: null,
+  theme: 'dark',
+  adminLoggedIn: false
+};
+
+// ─────────────────────────────────────────────
+//  FULL COUNTRY DATA (all codes)
+// ─────────────────────────────────────────────
+const COUNTRY_DATA = {
+  "1":{"flag":"🇺🇸","name":"USA/Canada"},
+  "7":{"flag":"🇷🇺","name":"Russia"},
+  "20":{"flag":"🇪🇬","name":"Egypt"},
+  "27":{"flag":"🇿🇦","name":"South Africa"},
+  "30":{"flag":"🇬🇷","name":"Greece"},
+  "31":{"flag":"🇳🇱","name":"Netherlands"},
+  "32":{"flag":"🇧🇪","name":"Belgium"},
+  "33":{"flag":"🇫🇷","name":"France"},
+  "34":{"flag":"🇪🇸","name":"Spain"},
+  "36":{"flag":"🇭🇺","name":"Hungary"},
+  "39":{"flag":"🇮🇹","name":"Italy"},
+  "40":{"flag":"🇷🇴","name":"Romania"},
+  "41":{"flag":"🇨🇭","name":"Switzerland"},
+  "43":{"flag":"🇦🇹","name":"Austria"},
+  "44":{"flag":"🇬🇧","name":"United Kingdom"},
+  "45":{"flag":"🇩🇰","name":"Denmark"},
+  "46":{"flag":"🇸🇪","name":"Sweden"},
+  "47":{"flag":"🇳🇴","name":"Norway"},
+  "48":{"flag":"🇵🇱","name":"Poland"},
+  "49":{"flag":"🇩🇪","name":"Germany"},
+  "51":{"flag":"🇵🇪","name":"Peru"},
+  "52":{"flag":"🇲🇽","name":"Mexico"},
+  "53":{"flag":"🇨🇺","name":"Cuba"},
+  "54":{"flag":"🇦🇷","name":"Argentina"},
+  "55":{"flag":"🇧🇷","name":"Brazil"},
+  "56":{"flag":"🇨🇱","name":"Chile"},
+  "57":{"flag":"🇨🇴","name":"Colombia"},
+  "58":{"flag":"🇻🇪","name":"Venezuela"},
+  "60":{"flag":"🇲🇾","name":"Malaysia"},
+  "61":{"flag":"🇦🇺","name":"Australia"},
+  "62":{"flag":"🇮🇩","name":"Indonesia"},
+  "63":{"flag":"🇵🇭","name":"Philippines"},
+  "64":{"flag":"🇳🇿","name":"New Zealand"},
+  "65":{"flag":"🇸🇬","name":"Singapore"},
+  "66":{"flag":"🇹🇭","name":"Thailand"},
+  "81":{"flag":"🇯🇵","name":"Japan"},
+  "82":{"flag":"🇰🇷","name":"South Korea"},
+  "84":{"flag":"🇻🇳","name":"Vietnam"},
+  "86":{"flag":"🇨🇳","name":"China"},
+  "90":{"flag":"🇹🇷","name":"Turkey"},
+  "91":{"flag":"🇮🇳","name":"India"},
+  "92":{"flag":"🇵🇰","name":"Pakistan"},
+  "93":{"flag":"🇦🇫","name":"Afghanistan"},
+  "94":{"flag":"🇱🇰","name":"Sri Lanka"},
+  "95":{"flag":"🇲🇲","name":"Myanmar"},
+  "98":{"flag":"🇮🇷","name":"Iran"},
+  "212":{"flag":"🇲🇦","name":"Morocco"},
+  "213":{"flag":"🇩🇿","name":"Algeria"},
+  "216":{"flag":"🇹🇳","name":"Tunisia"},
+  "218":{"flag":"🇱🇾","name":"Libya"},
+  "220":{"flag":"🇬🇲","name":"Gambia"},
+  "221":{"flag":"🇸🇳","name":"Senegal"},
+  "222":{"flag":"🇲🇷","name":"Mauritania"},
+  "223":{"flag":"🇲🇱","name":"Mali"},
+  "224":{"flag":"🇬🇳","name":"Guinea"},
+  "225":{"flag":"🇨🇮","name":"Ivory Coast"},
+  "226":{"flag":"🇧🇫","name":"Burkina Faso"},
+  "227":{"flag":"🇳🇪","name":"Niger"},
+  "228":{"flag":"🇹🇬","name":"Togo"},
+  "229":{"flag":"🇧🇯","name":"Benin"},
+  "230":{"flag":"🇲🇺","name":"Mauritius"},
+  "231":{"flag":"🇱🇷","name":"Liberia"},
+  "232":{"flag":"🇸🇱","name":"Sierra Leone"},
+  "233":{"flag":"🇬🇭","name":"Ghana"},
+  "234":{"flag":"🇳🇬","name":"Nigeria"},
+  "235":{"flag":"🇹🇩","name":"Chad"},
+  "236":{"flag":"🇨🇫","name":"Central Africa"},
+  "237":{"flag":"🇨🇲","name":"Cameroon"},
+  "238":{"flag":"🇨🇻","name":"Cape Verde"},
+  "239":{"flag":"🇸🇹","name":"São Tomé"},
+  "240":{"flag":"🇬🇶","name":"Equatorial Guinea"},
+  "241":{"flag":"🇬🇦","name":"Gabon"},
+  "242":{"flag":"🇨🇬","name":"Congo"},
+  "243":{"flag":"🇨🇩","name":"DR Congo"},
+  "244":{"flag":"🇦🇴","name":"Angola"},
+  "245":{"flag":"🇬🇼","name":"Guinea-Bissau"},
+  "246":{"flag":"🇮🇴","name":"British Indian Ocean"},
+  "247":{"flag":"🇦🇨","name":"Ascension Island"},
+  "248":{"flag":"🇸🇨","name":"Seychelles"},
+  "249":{"flag":"🇸🇩","name":"Sudan"},
+  "250":{"flag":"🇷🇼","name":"Rwanda"},
+  "251":{"flag":"🇪🇹","name":"Ethiopia"},
+  "252":{"flag":"🇸🇴","name":"Somalia"},
+  "253":{"flag":"🇩🇯","name":"Djibouti"},
+  "254":{"flag":"🇰🇪","name":"Kenya"},
+  "255":{"flag":"🇹🇿","name":"Tanzania"},
+  "256":{"flag":"🇺🇬","name":"Uganda"},
+  "257":{"flag":"🇧🇮","name":"Burundi"},
+  "258":{"flag":"🇲🇿","name":"Mozambique"},
+  "260":{"flag":"🇿🇲","name":"Zambia"},
+  "261":{"flag":"🇲🇬","name":"Madagascar"},
+  "262":{"flag":"🇷🇪","name":"Réunion"},
+  "263":{"flag":"🇿🇼","name":"Zimbabwe"},
+  "264":{"flag":"🇳🇦","name":"Namibia"},
+  "265":{"flag":"🇲🇼","name":"Malawi"},
+  "266":{"flag":"🇱🇸","name":"Lesotho"},
+  "267":{"flag":"🇧🇼","name":"Botswana"},
+  "268":{"flag":"🇸🇿","name":"Eswatini"},
+  "269":{"flag":"🇰🇲","name":"Comoros"},
+  "290":{"flag":"🇸🇭","name":"Saint Helena"},
+  "291":{"flag":"🇪🇷","name":"Eritrea"},
+  "297":{"flag":"🇦🇼","name":"Aruba"},
+  "298":{"flag":"🇫🇴","name":"Faroe Islands"},
+  "299":{"flag":"🇬🇱","name":"Greenland"},
+  "350":{"flag":"🇬🇮","name":"Gibraltar"},
+  "351":{"flag":"🇵🇹","name":"Portugal"},
+  "352":{"flag":"🇱🇺","name":"Luxembourg"},
+  "353":{"flag":"🇮🇪","name":"Ireland"},
+  "354":{"flag":"🇮🇸","name":"Iceland"},
+  "355":{"flag":"🇦🇱","name":"Albania"},
+  "356":{"flag":"🇲🇹","name":"Malta"},
+  "357":{"flag":"🇨🇾","name":"Cyprus"},
+  "358":{"flag":"🇫🇮","name":"Finland"},
+  "359":{"flag":"🇧🇬","name":"Bulgaria"},
+  "370":{"flag":"🇱🇹","name":"Lithuania"},
+  "371":{"flag":"🇱🇻","name":"Latvia"},
+  "372":{"flag":"🇪🇪","name":"Estonia"},
+  "373":{"flag":"🇲🇩","name":"Moldova"},
+  "374":{"flag":"🇦🇲","name":"Armenia"},
+  "375":{"flag":"🇧🇾","name":"Belarus"},
+  "376":{"flag":"🇦🇩","name":"Andorra"},
+  "377":{"flag":"🇲🇨","name":"Monaco"},
+  "378":{"flag":"🇸🇲","name":"San Marino"},
+  "380":{"flag":"🇺🇦","name":"Ukraine"},
+  "381":{"flag":"🇷🇸","name":"Serbia"},
+  "382":{"flag":"🇲🇪","name":"Montenegro"},
+  "385":{"flag":"🇭🇷","name":"Croatia"},
+  "386":{"flag":"🇸🇮","name":"Slovenia"},
+  "387":{"flag":"🇧🇦","name":"Bosnia"},
+  "389":{"flag":"🇲🇰","name":"North Macedonia"},
+  "420":{"flag":"🇨🇿","name":"Czech Republic"},
+  "421":{"flag":"🇸🇰","name":"Slovakia"},
+  "423":{"flag":"🇱🇮","name":"Liechtenstein"},
+  "500":{"flag":"🇫🇰","name":"Falkland Islands"},
+  "501":{"flag":"🇧🇿","name":"Belize"},
+  "502":{"flag":"🇬🇹","name":"Guatemala"},
+  "503":{"flag":"🇸🇻","name":"El Salvador"},
+  "504":{"flag":"🇭🇳","name":"Honduras"},
+  "505":{"flag":"🇳🇮","name":"Nicaragua"},
+  "506":{"flag":"🇨🇷","name":"Costa Rica"},
+  "507":{"flag":"🇵🇦","name":"Panama"},
+  "509":{"flag":"🇭🇹","name":"Haiti"},
+  "591":{"flag":"🇧🇴","name":"Bolivia"},
+  "592":{"flag":"🇬🇾","name":"Guyana"},
+  "593":{"flag":"🇪🇨","name":"Ecuador"},
+  "594":{"flag":"🇬🇫","name":"French Guiana"},
+  "595":{"flag":"🇵🇾","name":"Paraguay"},
+  "596":{"flag":"🇲🇶","name":"Martinique"},
+  "597":{"flag":"🇸🇷","name":"Suriname"},
+  "598":{"flag":"🇺🇾","name":"Uruguay"},
+  "599":{"flag":"🇧🇶","name":"Caribbean Netherlands"},
+  "670":{"flag":"🇹🇱","name":"East Timor"},
+  "672":{"flag":"🇳🇫","name":"Norfolk Island"},
+  "673":{"flag":"🇧🇳","name":"Brunei"},
+  "674":{"flag":"🇳🇷","name":"Nauru"},
+  "675":{"flag":"🇵🇬","name":"Papua New Guinea"},
+  "676":{"flag":"🇹🇴","name":"Tonga"},
+  "677":{"flag":"🇸🇧","name":"Solomon Islands"},
+  "678":{"flag":"🇻🇺","name":"Vanuatu"},
+  "679":{"flag":"🇫🇯","name":"Fiji"},
+  "680":{"flag":"🇵🇼","name":"Palau"},
+  "681":{"flag":"🇼🇫","name":"Wallis & Futuna"},
+  "682":{"flag":"🇨🇰","name":"Cook Islands"},
+  "683":{"flag":"🇳🇺","name":"Niue"},
+  "685":{"flag":"🇼🇸","name":"Samoa"},
+  "686":{"flag":"🇰🇮","name":"Kiribati"},
+  "687":{"flag":"🇳🇨","name":"New Caledonia"},
+  "688":{"flag":"🇹🇻","name":"Tuvalu"},
+  "689":{"flag":"🇵🇫","name":"French Polynesia"},
+  "690":{"flag":"🇹🇰","name":"Tokelau"},
+  "691":{"flag":"🇫🇲","name":"Micronesia"},
+  "692":{"flag":"🇲🇭","name":"Marshall Islands"},
+  "850":{"flag":"🇰🇵","name":"North Korea"},
+  "852":{"flag":"🇭🇰","name":"Hong Kong"},
+  "853":{"flag":"🇲🇴","name":"Macau"},
+  "855":{"flag":"🇰🇭","name":"Cambodia"},
+  "856":{"flag":"🇱🇦","name":"Laos"},
+  "880":{"flag":"🇧🇩","name":"Bangladesh"},
+  "886":{"flag":"🇹🇼","name":"Taiwan"},
+  "960":{"flag":"🇲🇻","name":"Maldives"},
+  "961":{"flag":"🇱🇧","name":"Lebanon"},
+  "962":{"flag":"🇯🇴","name":"Jordan"},
+  "963":{"flag":"🇸🇾","name":"Syria"},
+  "964":{"flag":"🇮🇶","name":"Iraq"},
+  "965":{"flag":"🇰🇼","name":"Kuwait"},
+  "966":{"flag":"🇸🇦","name":"Saudi Arabia"},
+  "967":{"flag":"🇾🇪","name":"Yemen"},
+  "968":{"flag":"🇴🇲","name":"Oman"},
+  "970":{"flag":"🇵🇸","name":"Palestine"},
+  "971":{"flag":"🇦🇪","name":"UAE"},
+  "972":{"flag":"🇮🇱","name":"Israel"},
+  "973":{"flag":"🇧🇭","name":"Bahrain"},
+  "974":{"flag":"🇶🇦","name":"Qatar"},
+  "975":{"flag":"🇧🇹","name":"Bhutan"},
+  "976":{"flag":"🇲🇳","name":"Mongolia"},
+  "977":{"flag":"🇳🇵","name":"Nepal"},
+  "992":{"flag":"🇹🇯","name":"Tajikistan"},
+  "993":{"flag":"🇹🇲","name":"Turkmenistan"},
+  "994":{"flag":"🇦🇿","name":"Azerbaijan"},
+  "995":{"flag":"🇬🇪","name":"Georgia"},
+  "996":{"flag":"🇰🇬","name":"Kyrgyzstan"},
+  "998":{"flag":"🇺🇿","name":"Uzbekistan"}
+};
+
+// All dial codes sorted longest-first for correct prefix matching
+const DIAL_CODES = Object.keys(COUNTRY_DATA).sort((a,b) => b.length - a.length);
+
+const SERVICE_NAMES = {
+  "whatsapp":"WhatsApp","facebook":"Facebook","instagram":"Instagram",
+  "snapchat":"Snapchat","twitter":"Twitter","tiktok":"TikTok",
+  "telegram":"Telegram","linkedin":"LinkedIn","discord":"Discord",
+  "viber":"Viber","wechat":"WeChat","line":"LINE","kakaotalk":"KakaoTalk",
+  "google":"Google","microsoft":"Microsoft","apple":"Apple",
+  "yahoo":"Yahoo","amazon":"Amazon","uber":"Uber","netflix":"Netflix",
+  "paypal":"PayPal","grab":"Grab","gojek":"GoJek","olx":"OLX",
+  "steam":"Steam","roblox":"Roblox","naver":"Naver",
+  "verify":"Verification","otp":"OTP Service"
+};
+
+// ─────────────────────────────────────────────
+//  HELPERS
+// ─────────────────────────────────────────────
+function getCountryInfo(phone) {
+  const s = String(phone).trim().replace(/^\+/, '');
+  for (const code of DIAL_CODES) {
+    if (s.startsWith(code)) return COUNTRY_DATA[code];
+  }
+  return {flag:"🌍", name:"Unknown"};
+}
+
+function getServiceName(cli) {
+  if (!cli) return "Unknown Service";
+  const lo = String(cli).toLowerCase();
+  for (const [k,v] of Object.entries(SERVICE_NAMES)) {
+    if (lo.includes(k)) return v;
+  }
+  return String(cli).charAt(0).toUpperCase() + String(cli).slice(1);
+}
+
+function extractOtp(msg) {
+  if (!msg) return "N/A";
+  const s = String(msg);
+  let m;
+  m = s.match(/\b(\d{6})\b/); if (m) return m[1];
+  m = s.match(/(\d{3}-\d{3})/); if (m) return m[1];
+  m = s.match(/\b(\d{4,5})\b/); if (m) return m[1];
+  return "N/A";
+}
+
+function maskPhone(phone) {
+  const s = String(phone);
+  if (s.length <= 4) return s;
+  return `${s.slice(0,4)}****${s.slice(-3)}`;
+}
+
+function formatTime(dt) {
+  if (!dt) return "–";
+  return String(dt).replace('T',' ').slice(0,19);
+}
+
+// Parse datetime string to comparable value for sorting
+function parseDt(dt) {
+  if (!dt) return 0;
+  try { return new Date(String(dt).replace(' ','T')).getTime(); }
+  catch(e) { return 0; }
+}
+
+function makeId(d) {
+  if (Array.isArray(d) && d.length >= 4)
+    return `${d[3]}_${d[1]}_${d[0]}_${String(d[2]).slice(0,50)}`;
+  if (d && typeof d === 'object')
+    return `${d.dt}_${d.num}_${d.cli}_${String(d.message||'').slice(0,50)}`;
+  return String(d).slice(0,100);
+}
+
+function parseRecord(d) {
+  if (Array.isArray(d) && d.length >= 4)
+    return { cli: String(d[0]||''), num: String(d[1]||''), message: String(d[2]||''), dt: String(d[3]||'') };
+  if (d && typeof d === 'object')
+    return { cli: d.cli||'', num: d.num||'', message: d.message||'', dt: d.dt||'' };
+  return null;
+}
+
+// ─────────────────────────────────────────────
+//  FETCH API DATA
+// ─────────────────────────────────────────────
+async function fetchApiData() {
+  state.fetchCount++;
+  updateStats();
+  try {
+    const url = `${CONFIG.apiUrl}?token=${encodeURIComponent(CONFIG.apiToken)}&records=10000`;
+    const resp = await fetch(url, { signal: AbortSignal.timeout(30000) });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const data = await resp.json();
+    setConnected(true);
+    if (Array.isArray(data)) return data;
+    if (data && data.status === 'success') return data.data || [];
+    return [];
+  } catch(e) {
+    state.errorCount++;
+    setConnected(false);
+    updateStats();
+    return [];
+  }
+}
+
+// ─────────────────────────────────────────────
+//  PROCESS & RENDER  — new OTPs prepended live
+// ─────────────────────────────────────────────
+let isFirstFetch = true;
+let countdownTimer = null;
+
+async function fetchAndRender() {
+  if (!CONFIG.otpEnabled) { updateStatusBar(); return; }
+  const records = await fetchApiData();
+
+  updateStatusBar();
+
+  if (!records.length) return;
+
+  if (isFirstFetch) {
+    // ── FIRST LOAD: show all records, mark all as seen ──
+    isFirstFetch = false;
+    const allParsed = [];
+    for (const rec of records) {
+      const id = makeId(rec);
+      state.processed.add(id);
+      const parsed = parseRecord(rec);
+      if (!parsed || !parsed.num || !parsed.message) continue;
+      allParsed.push(parsed);
+      state.totalCount++;
+      state.sessionCount++;
+    }
+    // Sort newest first
+    allParsed.sort((a, b) => parseDt(b.dt) - parseDt(a.dt));
+    state.otps = allParsed.slice(0, CONFIG.maxCards);
+    renderFeed(0);
+    updateStats();
+    return;
+  }
+
+  // ── SUBSEQUENT FETCHES: only show IDs not seen before ──
+  const newBatch = [];
+  for (const rec of records) {
+    const id = makeId(rec);
+    if (state.processed.has(id)) continue;
+    const parsed = parseRecord(rec);
+    if (!parsed || !parsed.num || !parsed.message) continue;
+    state.processed.add(id);
+    newBatch.push(parsed);
+    state.sessionCount++;
+    state.totalCount++;
+    if (state.processed.size > 20000) {
+      const arr = [...state.processed];
+      arr.slice(0, 5000).forEach(k => state.processed.delete(k));
+    }
+  }
+
+  if (newBatch.length > 0) {
+    newBatch.sort((a, b) => parseDt(b.dt) - parseDt(a.dt));
+    state.otps = [...newBatch, ...state.otps].slice(0, CONFIG.maxCards);
+    prependCards(newBatch);
+    showToast(`⚡ ${newBatch.length} new OTP${newBatch.length > 1 ? 's' : ''}!`);
+  }
+
+  updateStats();
+}
+
+function prependCards(batch) {
+  const feed = document.getElementById('otpFeed');
+  const empty = document.getElementById('emptyState');
+  if (empty.parentNode === feed) feed.removeChild(empty);
+
+  const frag = document.createDocumentFragment();
+  batch.forEach((otp, i) => {
+    const div = document.createElement('div');
+    div.innerHTML = buildCard(otp, true);
+    const card = div.firstElementChild;
+    frag.appendChild(card);
+    setTimeout(() => card.classList.remove('new-flash'), 4000);
+  });
+
+  feed.insertBefore(frag, feed.firstChild);
+
+  while (feed.children.length > CONFIG.maxCards) {
+    feed.removeChild(feed.lastChild);
+  }
+}
+
+function renderFeed(newCount) {
+  const feed = document.getElementById('otpFeed');
+  const empty = document.getElementById('emptyState');
+  if (!state.otps.length) {
+    feed.innerHTML = '';
+    feed.appendChild(empty);
+    return;
+  }
+  if (empty.parentNode === feed) feed.removeChild(empty);
+  feed.innerHTML = state.otps.map((otp) => buildCard(otp, false)).join('');
+}
+
+function buildCard(otp, isNew) {
+  const { cli, num, message, dt } = otp;
+  const country = getCountryInfo(num);
+  const service = getServiceName(cli);
+  const code = extractOtp(message);
+  const masked = maskPhone(num);
+  const time = formatTime(dt);
+  const flashClass = isNew ? 'new-flash' : '';
+  // Escape code for safe inline onclick
+  const codeSafe = escHtml(code).replace(/'/g, '&#39;');
+
+  return `<div class="otp-card ${flashClass}">
+  <div class="card-header">
+    <div class="card-flag">${country.flag}</div>
+    <div class="card-title-group">
+      <div class="card-service">${escHtml(service)}</div>
+      <div class="card-country">${escHtml(country.name)}</div>
+    </div>
+    <div class="card-time">${escHtml(time)}</div>
+  </div>
+  <div class="card-body">
+    <div class="card-row">
+      <span class="card-label">NUMBER</span>
+      <span class="card-value phone">+${escHtml(masked)}</span>
+    </div>
+    <div class="otp-box">
+      <div>
+        <div class="otp-label">OTP CODE</div>
+        <div class="otp-code">${escHtml(code)}</div>
+      </div>
+      <button class="otp-copy" onclick="copyOtp(this,'${codeSafe}')" title="Copy OTP">📋</button>
+    </div>
+    <div class="card-message">${escHtml(message)}</div>
+  </div>
+  <div class="card-footer">
+    <span class="card-brand">⚡ POWER OTP WEB ⚡</span>
+  </div>
+</div>`;
+}
+
+function copyOtp(btn, code) {
+  // Try modern clipboard API first, fallback to execCommand
+  const text = String(code);
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(() => flashCopy(btn)).catch(() => fallbackCopy(btn, text));
+  } else {
+    fallbackCopy(btn, text);
+  }
+}
+
+function fallbackCopy(btn, text) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.cssText = 'position:fixed;opacity:0;top:0;left:0;';
+  document.body.appendChild(ta);
+  ta.focus(); ta.select();
+  try { document.execCommand('copy'); } catch(e) {}
+  document.body.removeChild(ta);
+  flashCopy(btn);
+}
+
+function flashCopy(btn) {
+  btn.textContent = '✓';
+  btn.classList.add('copied');
+  setTimeout(() => { btn.textContent = '📋'; btn.classList.remove('copied'); }, 1500);
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ─────────────────────────────────────────────
+//  STATUS & STATS
+// ─────────────────────────────────────────────
+function setConnected(v) {
+  state.isConnected = v;
+  document.getElementById('statusDot').classList.toggle('off', !v);
+  document.getElementById('statusText').textContent = v ? 'LIVE' : 'OFFLINE';
+}
+
+function updateStatusBar() {
+  document.getElementById('totalCount').textContent = state.totalCount;
+  document.getElementById('intervalDisplay').textContent = CONFIG.checkInterval + 's';
+  document.getElementById('otpStatus').textContent = CONFIG.otpEnabled ? 'ON' : 'OFF';
+  document.getElementById('lastUpdate').textContent = 'UPDATED: ' + new Date().toLocaleTimeString();
+}
+
+function updateStats() {
+  document.getElementById('statTotal').textContent = state.totalCount;
+  document.getElementById('statSession').textContent = state.sessionCount;
+  document.getElementById('statFetches').textContent = state.fetchCount;
+  document.getElementById('statErrors').textContent = state.errorCount;
+}
+
+// ─────────────────────────────────────────────
+//  CONTROLS
+// ─────────────────────────────────────────────
+function startFetching() {
+  if (state.intervalId) clearInterval(state.intervalId);
+  if (countdownTimer) clearInterval(countdownTimer);
+
+  isFirstFetch = true; // reset on settings change
+
+  fetchAndRender();
+
+  let countdown = CONFIG.checkInterval;
+  document.getElementById('nextFetch').textContent = countdown + 's';
+
+  state.intervalId = setInterval(() => {
+    countdown = CONFIG.checkInterval;
+    fetchAndRender();
+  }, CONFIG.checkInterval * 1000);
+
+  countdownTimer = setInterval(() => {
+    countdown--;
+    if (countdown < 0) countdown = CONFIG.checkInterval;
+    document.getElementById('nextFetch').textContent = countdown + 's';
+  }, 1000);
+
+  updateStatusBar();
+}
+
+function toggleOtp() {
+  CONFIG.otpEnabled = !CONFIG.otpEnabled;
+  document.getElementById('otpToggle').classList.toggle('on', CONFIG.otpEnabled);
+  document.getElementById('toggleSub').textContent = CONFIG.otpEnabled
+    ? 'Currently: ENABLED • OTPs showing live'
+    : 'Currently: DISABLED • OTPs hidden';
+  document.getElementById('otpStatus').textContent = CONFIG.otpEnabled ? 'ON' : 'OFF';
+  showToast(CONFIG.otpEnabled ? '✅ OTP Display ENABLED' : '❌ OTP Display DISABLED');
+}
+
+function saveApiSettings() {
+  const url = document.getElementById('apiUrl').value.trim();
+  const token = document.getElementById('apiToken').value.trim();
+  const interval = parseInt(document.getElementById('intervalInput').value) || 10;
+  if (url) CONFIG.apiUrl = url;
+  if (token) CONFIG.apiToken = token;
+  CONFIG.checkInterval = Math.max(5, Math.min(300, interval));
+  state.processed.clear();
+  state.otps = [];
+  isFirstFetch = true;
+  startFetching();
+  closeAdmin();
+  showToast('✅ Settings saved & applied!');
+}
+
+function clearFeed() {
+  state.otps = [];
+  state.processed.clear();
+  state.totalCount = 0;
+  state.sessionCount = 0;
+  isFirstFetch = true;
+  renderFeed(0);
+  updateStats();
+  updateStatusBar();
+  closeAdmin();
+  showToast('🗑️ Feed cleared!');
+}
+
+function manualRefresh() {
+  const btn = document.getElementById('refreshBtn');
+  btn.textContent = '⏳';
+  fetchAndRender().finally(() => { btn.textContent = '🔄'; });
+}
+
+function showFeed() {
+  document.querySelectorAll('.nav-item').forEach((b,i) => b.classList.toggle('active', i===0));
+}
+
+// ─────────────────────────────────────────────
+//  THEME
+// ─────────────────────────────────────────────
+function toggleTheme() {
+  state.theme = state.theme === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', state.theme);
+  document.getElementById('themeBtn').textContent = state.theme === 'dark' ? '🌙' : '☀️';
+}
+
+// ─────────────────────────────────────────────
+//  ADMIN LOGIN — modal only (no full page lock)
+// ─────────────────────────────────────────────
+const ADMIN_USER = 'powerxtream';
+const ADMIN_PASS = 'Khang1.com';
+
+function openAdmin() {
+  if (!state.adminLoggedIn) {
+    // Show login modal inside admin sheet
+    document.getElementById('adminLoginSection').style.display = 'flex';
+    document.getElementById('adminContent').style.display = 'none';
+    document.getElementById('adminLoginUser').value = '';
+    document.getElementById('adminLoginPass').value = '';
+    document.getElementById('adminLoginError').classList.remove('show');
+  } else {
+    document.getElementById('adminLoginSection').style.display = 'none';
+    document.getElementById('adminContent').style.display = 'block';
+    document.getElementById('apiUrl').value = CONFIG.apiUrl;
+    document.getElementById('apiToken').value = CONFIG.apiToken;
+    document.getElementById('intervalInput').value = CONFIG.checkInterval;
+    updateStats();
+  }
+  document.getElementById('adminOverlay').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function doAdminLogin() {
+  const user = document.getElementById('adminLoginUser').value.trim();
+  const pass = document.getElementById('adminLoginPass').value;
+  if (user === ADMIN_USER && pass === ADMIN_PASS) {
+    state.adminLoggedIn = true;
+    document.getElementById('adminLoginSection').style.display = 'none';
+    document.getElementById('adminContent').style.display = 'block';
+    document.getElementById('apiUrl').value = CONFIG.apiUrl;
+    document.getElementById('apiToken').value = CONFIG.apiToken;
+    document.getElementById('intervalInput').value = CONFIG.checkInterval;
+    updateStats();
+    showToast('✅ Admin access granted!');
+  } else {
+    document.getElementById('adminLoginError').classList.add('show');
+    document.getElementById('adminLoginPass').value = '';
+    const sheet = document.getElementById('adminSheet');
+    sheet.classList.add('login-shake');
+    setTimeout(() => sheet.classList.remove('login-shake'), 400);
+  }
+}
+
+function closeAdmin() {
+  document.getElementById('adminOverlay').classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+function handleOverlayClick(e) {
+  if (e.target === document.getElementById('adminOverlay')) closeAdmin();
+}
+
+// ─────────────────────────────────────────────
+//  TOAST
+// ─────────────────────────────────────────────
+let toastTimer = null;
+function showToast(msg) {
+  const existing = document.querySelector('.toast');
+  if (existing) existing.remove();
+  if (toastTimer) clearTimeout(toastTimer);
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  toastTimer = setTimeout(() => {
+    t.style.opacity = '0'; t.style.transition = 'opacity 0.3s';
+    setTimeout(()=>t.remove(), 300);
+  }, 2500);
+}
+
+// ─────────────────────────────────────────────
+//  INIT — website opens directly, no lock
+// ─────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  updateStatusBar();
+  startFetching(); // start immediately, no login needed for viewing
+  // Enter key on admin login modal
+  document.getElementById('adminLoginUser').addEventListener('keydown', e => {
+    if (e.key==='Enter') document.getElementById('adminLoginPass').focus();
+  });
+  document.getElementById('adminLoginPass').addEventListener('keydown', e => {
+    if (e.key==='Enter') doAdminLogin();
+  });
+});
+</script>
+</body>
+</html>
